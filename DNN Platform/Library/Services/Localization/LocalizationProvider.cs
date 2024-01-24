@@ -299,7 +299,8 @@ namespace DotNetNuke.Services.Localization
                     }
 
                     // no filepath found from an absolute reference, try and map the path to get the file path
-                    if (filePath == null)
+                    // ignoring the cacheKey as a filename if it contains invalid filesystem characters.
+                    if (filePath == null && !HasInvalidChars(cacheKey))
                     {
                         filePath = HostingEnvironment.MapPath(Globals.ApplicationPath + cacheKey);
                     }
@@ -348,6 +349,11 @@ namespace DotNetNuke.Services.Localization
             }
 
             return resources;
+        }
+
+        private static bool HasInvalidChars(string filename)
+        {
+            return Path.GetInvalidFileNameChars().Any(ic => filename.Any(c => c == ic));
         }
 
         private static SharedDictionary<string, bool> GetResourceFileLookupDictionary()
